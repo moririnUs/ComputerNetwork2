@@ -1,0 +1,22 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ポケモン名前当てクイズ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>ポケモン名前当てクイズ</h1>
+    <button id="quizButton">クイズを開始</button>
+    <div id="quizSection" class="hidden">
+        <p id="question">ポケモンの名前を当ててください！</p>
+        <input type="text" id="answerInput" placeholder="名前を入力">
+        <button id="submitAnswer">送信</button>
+    </div>
+    <div id="result" class="result hidden"></div>
+
+    <script src="main.js"></script>
+</body>
+</html>
