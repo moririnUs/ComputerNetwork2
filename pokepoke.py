@@ -8,8 +8,6 @@ import csv
 chrome_options = Options()
 chrome_options.add_argument("--headless")  # ヘッドレスモード
 chrome_options.add_argument("--disable-gpu")  # GPUを無効化
-chrome_options.add_argument("--no-sandbox")  # サンドボックス無効化（Linux環境用）
-chrome_options.add_argument("--disable-dev-shm-usage")  # 共有メモリサイズ制限を無効化
 
 # WebDriverの設定
 service = Service()  # デフォルトのChromeDriver
@@ -65,42 +63,60 @@ for card in card_elms:
             else:
                 dm_text = waza_dms[i].text.strip() if i < len(waza_dms) else "-"
 
+            # エネルギー要素数を取得
+            energy_icons = waza_reqs[i].select("span") if i < len(waza_reqs) else []
+            energy_count = len(energy_icons)
+
+            # "×N"表記を考慮
+            multiplier_text = waza_reqs[i].text.strip()
+            if "✕" in multiplier_text:
+                try:
+                    multiplier = int(multiplier_text.split("✕")[-1])
+                    energy_count += (multiplier - 1)  # ✕Nがある場合、要素数に追加
+                except ValueError:
+                    pass  # 数字の解析が失敗した場合は無視
+
             # 空の技名は無視
             if not name_text:
                 continue
 
             # 有効な技をリストに追加
-            valid_moves.append({"技名前": name_text, "攻撃力": dm_text})
+            valid_moves.append({
+                "技名前": name_text,
+                "攻撃力": dm_text,
+                "エネルギー要素数": energy_count
+            })
 
         # カードデータの作成
-        card_data = {"名前": name, "HP": hp, "画像URL": image_url}
+        card_data = {"名前": name, "HP": hp}
         if len(valid_moves) > 0:
             card_data["技1名前"] = valid_moves[0]["技名前"]
             card_data["技1攻撃力"] = valid_moves[0]["攻撃力"]
+            card_data["技1エネルギー要素数"] = valid_moves[0]["エネルギー要素数"]
         if len(valid_moves) > 1:
             card_data["技2名前"] = valid_moves[1]["技名前"]
             card_data["技2攻撃力"] = valid_moves[1]["攻撃力"]
+            card_data["技2エネルギー要素数"] = valid_moves[1]["エネルギー要素数"]
+        card_data["画像URL"] = image_url  # 最後に画像URLを追加
 
         cards.append(card_data)
 
-
-
-    except Exception as e:
-        # エラーは無視して続行
-        print(f"エラーが発生しました: {e}")
+    except Exception:
         continue
 
 # CSVファイルに保存
 csv_file = "pokemon_cards.csv"
-csv_columns = ["名前", "HP", "画像URL", "技1名前", "技1攻撃力", "技2名前", "技2攻撃力"]
+csv_columns = [
+    "名前", "HP", 
+    "技1名前", "技1攻撃力", "技1エネルギー要素数", 
+    "技2名前", "技2攻撃力", "技2エネルギー要素数", 
+    "画像URL"  # 画像URLを最後に配置
+]
 
-try:
-    with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
-        writer = csv.DictWriter(file, fieldnames=csv_columns)
-        writer.writeheader()
-        writer.writerows(cards)
-except IOError as e:
-    print(f"CSVファイルの保存中にエラーが発生しました: {e}")
+with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
+    writer = csv.DictWriter(file, fieldnames=csv_columns)
+    writer.writeheader()
+    writer.writerows(cards)
 
 # WebDriverを終了
 driver.quit()
