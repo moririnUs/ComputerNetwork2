@@ -1,44 +1,68 @@
-const quizButton = document.getElementById('quizButton');
-const quizSection = document.getElementById('quizSection');
-const answerInput = document.getElementById('answerInput');
-const submitAnswer = document.getElementById('submitAnswer');
-const resultDiv = document.getElementById('result');
+/* main.js */
+let pokemonData = [];
 
-let correctAnswer = '';
+function csvToJson(csv) {
+    const lines = csv.split("\n");
+    const headers = lines[0].split(",");
+    return lines.slice(1).map(line => {
+        const values = line.split(",");
+        return headers.reduce((obj, header, index) => {
+            obj[header] = values[index];
+            return obj;
+        }, {});
+    });
+}
 
-// クイズ開始ボタンをクリックしたときの処理
-quizButton.addEventListener('click', async () => {
+function setupQuiz() {
+    const quizContainer = document.getElementById("quiz-container");
+    const quizImage = document.getElementById("quiz-image");
+    const quizHint = document.getElementById("quiz-hint");
+    const answerInput = document.getElementById("answer-input");
+    const feedback = document.getElementById("feedback");
+
+    const randomPokemon = pokemonData[Math.floor(Math.random() * pokemonData.length)];
+
+    quizImage.src = randomPokemon["画像URL"];
+    quizHint.textContent = `ヒント: ${randomPokemon["技1名前"]} - ${randomPokemon["技1説明"]}`;
+    answerInput.value = "";
+    feedback.textContent = "";
+
+    answerInput.focus();
+
+    const submitAnswer = () => {
+        const userAnswer = answerInput.value.trim();
+        if (userAnswer === randomPokemon["名前"]) {
+            feedback.textContent = "正解！";
+            feedback.style.color = "green";
+        } else {
+            feedback.textContent = `不正解。正解は「${randomPokemon["名前"]}」でした。`;
+            feedback.style.color = "red";
+        }
+        setTimeout(setupQuiz, 1000);
+    };
+
+    answerInput.onkeydown = event => {
+        if (event.key === "Enter") {
+            submitAnswer();
+        }
+    };
+}
+
+document.getElementById("load-data").onclick = async () => {
     try {
-        const response = await fetch('pokemon_data.csv'); // CSVデータを取得
-        const data = await response.text();
-        const rows = data.split('\\n');
-        const randomRow = rows[Math.floor(Math.random() * rows.length)];
-
-        const [pokemonName] = randomRow.split(','); // CSVの1列目をポケモン名と仮定
-        correctAnswer = pokemonName.trim();
-
-        quizSection.classList.remove('hidden');
-        resultDiv.classList.add('hidden');
+        const response = await fetch("pokemon_cards.csv");
+        const csvText = await response.text();
+        pokemonData = csvToJson(csvText);
+        document.getElementById("quiz-container").style.display = "block";
+        setupQuiz();
     } catch (error) {
-        alert('データの読み込みに失敗しました');
-        console.error(error);
+        console.error("データの読み込みに失敗しました:", error);
     }
-});
+};
 
-// 答えを送信したときの処理
-submitAnswer.addEventListener('click', () => {
-    const userAnswer = answerInput.value.trim();
-    if (userAnswer === '') {
-        alert('答えを入力してください');
-        return;
+window.onload = () => {
+    const answerInput = document.getElementById("answer-input");
+    if (answerInput) {
+        answerInput.focus();
     }
-
-    if (userAnswer === correctAnswer) {
-        resultDiv.textContent = '正解！おめでとうございます！';
-    } else {
-        resultDiv.textContent = `残念！正解は「${correctAnswer}」でした。`;
-    }
-
-    resultDiv.classList.remove('hidden');
-    answerInput.value = '';
-});
+};
