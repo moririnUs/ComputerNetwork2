@@ -38,7 +38,7 @@ function setupQuiz() {
             feedback.textContent = `不正解。正解は「${randomPokemon["名前"]}」でした。`;
             feedback.style.color = "red";
         }
-        setTimeout(setupQuiz, 1000);
+        setTimeout(setupQuiz, 3000);
     };
 
     answerInput.onkeydown = event => {
