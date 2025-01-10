@@ -46,6 +46,7 @@
 
     <!-- クイズセクション -->
     <div class="quiz-container hidden" id="quiz-container">
+        <p id="score">ポイント: 0</p>
         <p id="timer">残り時間: 120秒</p>
         <p id="lives">ライフ: ♥♥♥♥♥♥♥♥♥♥</p>
         <p id="quiz-hint">ヒント: 技や説明がここに表示されます</p>
@@ -70,7 +71,7 @@
         let hintInterval, timerInterval; // ヒントとタイマーのインターバル
         let currentPokemon; // 現在のポケモンデータ
         let rankings = []; // ランキングデータ
-
+        let hintStep = 0;
         // CSVをJSONに変換する関数
         function csvToJson(csv) {
             const lines = csv.split("\n");
@@ -140,6 +141,15 @@
 
         }
 
+        let score = 0; // ポイント
+
+        // ポイントを更新する関数
+        function updateScore(points) {
+            score += points;
+            const scoreDisplay = document.getElementById("score");
+            scoreDisplay.textContent = `ポイント: ${score}`;
+        }
+
         // 回答処理
         function submitAnswer() {
             const answerInput = document.getElementById("answer-input");
@@ -147,10 +157,15 @@
             const userAnswer = hirakata(answerInput.value.trim().toLowerCase());
             const correctAnswer = currentPokemon["名前"].toLowerCase();
 
+
+            console.log("Hint Step:", hintStep);
+            let points = 0;
             if (userAnswer === correctAnswer) {
                 feedback.textContent = "正解！";
                 feedback.style.color = "green";
-                correctCount++;
+                points = Math.max(3 - hintStep, 1); // ポイント計算：ヒントが少ないほど高得点
+                points = hintStep; // ポイント計算：ヒントが少ないほど高得点
+                updateScore(points); // ポイントを更新
             } else {
                 feedback.textContent = `不正解！正解は「${currentPokemon["名前"]}」でした。`;
                 feedback.style.color = "red";
@@ -161,8 +176,9 @@
                     return;
                 }
             }
+
             const previousAnswer = document.createElement('p');
-            previousAnswer.textContent = `${userAnswer}:${userAnswer === correctAnswer ? '正解' : '不正解'} (${currentPokemon["名前"]})`;
+            previousAnswer.textContent = `${userAnswer}:${userAnswer === correctAnswer ? '正解' : '不正解'} (${currentPokemon["名前"]}) - ポイント: ${points}`;
             previousAnswer.style.color = `${userAnswer === correctAnswer ? 'green' : 'red'}`;
 
             // 解答欄の下に新しい段落を挿入
@@ -170,8 +186,6 @@
 
             // 次のクイズをセットアップ
             setupQuiz();
-
-
         }
 
         // ライフを更新
@@ -235,14 +249,16 @@
                 const response = await fetch("pokemon_data.csv");
                 const csvText = await response.text();
 
-                // 正答表示のリセット
-                const resetAnswers = (A) => {
-                    const answers = document.querySelectorAll('#feedback + p'); // feedbackの次にあるすべての段落を取得
-                    answers.forEach(answer => answer.remove()); // 各段落を削除
+                const resetAnswers = () => {
+                    const feedbackParent = feedback.parentNode;
+                    let nextElement = feedback.nextSibling;
+                    while (nextElement) {
+                        const elementToRemove = nextElement;
+                        nextElement = nextElement.nextSibling;
+                        feedbackParent.removeChild(elementToRemove);
+                    }
                 };
-                
-                
-                
+              
                 pokemonData = csvToJson(csvText);
                 
                 correctCount = 0;
@@ -251,6 +267,8 @@
                 
                 updateLives();
                 resetAnswers();
+
+                
                 timerInterval = setInterval(updateTimer, 1000);
                 setupQuiz();
             } catch (error) {
