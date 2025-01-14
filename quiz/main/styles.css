@@ -1,0 +1,19 @@
+/* styles.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    text-align: center;
+}
+
+.quiz-container {
+    margin-top: 20px;
+}
+
+.quiz-image {
+    width: 300px;
+    height: 420px;
+}
+
+.answer-input {
+    margin-top: 10px;
+}
