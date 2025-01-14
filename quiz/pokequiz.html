@@ -71,7 +71,7 @@
         let hintInterval, timerInterval; // ヒントとタイマーのインターバル
         let currentPokemon; // 現在のポケモンデータ
         let rankings = []; // ランキングデータ
-        let hintStep = 0;
+        let hintStep = 1;
         // CSVをJSONに変換する関数
         function csvToJson(csv) {
             const lines = csv.split("\n");
@@ -120,7 +120,7 @@
 
             if (hintInterval) clearInterval(hintInterval);
 
-            let intervals = [2000, 6000, 4000]; // 各ヒントの待ち時間を設定
+            let intervals = [2000, 8000, 5000]; // 各ヒントの待ち時間を設定
             let hintStep = 0;
 
             const showHint = () => {
@@ -150,13 +150,21 @@
             scoreDisplay.textContent = `ポイント: ${score}`;
         }
 
+        // エスケープ関数
+        function escapeHTML(str) {
+            return str.replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+        }
+
         // 回答処理
         function submitAnswer() {
             const answerInput = document.getElementById("answer-input");
             const feedback = document.getElementById("feedback");
-            const userAnswer = hirakata(answerInput.value.trim().toLowerCase());
+            const userAnswer = hirakata(escapeHTML(answerInput.value.trim().toLowerCase()));
             const correctAnswer = currentPokemon["名前"].toLowerCase();
-
 
             console.log("Hint Step:", hintStep);
             let points = 0;
@@ -164,7 +172,6 @@
                 feedback.textContent = "正解！";
                 feedback.style.color = "green";
                 points = Math.max(3 - hintStep, 1); // ポイント計算：ヒントが少ないほど高得点
-                points = hintStep; // ポイント計算：ヒントが少ないほど高得点
                 updateScore(points); // ポイントを更新
             } else {
                 feedback.textContent = `不正解！正解は「${currentPokemon["名前"]}」でした。`;
@@ -187,6 +194,8 @@
             // 次のクイズをセットアップ
             setupQuiz();
         }
+
+
 
         // ライフを更新
         function updateLives() {
