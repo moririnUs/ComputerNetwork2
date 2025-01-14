@@ -3,19 +3,22 @@ const quizSection = document.getElementById('quizSection');
 const answerInput = document.getElementById('answerInput');
 const submitAnswer = document.getElementById('submitAnswer');
 const resultDiv = document.getElementById('result');
-
+const socket = io('http://192.168.11.50:3031');
 let correctAnswer = '';
+
+const info_num = 2;
 
 // クイズ開始ボタンをクリックしたときの処理
 quizButton.addEventListener('click', async () => {
     try {
-        const response = await fetch('pokemon_data.csv'); // CSVデータを取得
-        const data = await response.text();
-        const rows = data.split('\\n');
-        const randomRow = rows[Math.floor(Math.random() * rows.length)];
+        socket.emit('question',3);
+        // const response = await fetch('pokemon_data.csv'); // CSVデータを取得
+        // const data = await response.text();
+        // const rows = data.split('\\n');
+        // const randomRow = rows[Math.floor(Math.random() * rows.length)];
 
-        const [pokemonName] = randomRow.split(','); // CSVの1列目をポケモン名と仮定
-        correctAnswer = pokemonName.trim();
+        // const [pokemonName] = randomRow.split(','); // CSVの1列目をポケモン名と仮定
+        // correctAnswer = pokemonName.trim();
 
         quizSection.classList.remove('hidden');
         resultDiv.classList.add('hidden');
@@ -42,3 +45,7 @@ submitAnswer.addEventListener('click', () => {
     resultDiv.classList.remove('hidden');
     answerInput.value = '';
 });
+
+socket.on('hint',data=>{
+    data
+})
