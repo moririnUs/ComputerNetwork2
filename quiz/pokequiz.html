@@ -62,7 +62,8 @@
         <button onclick="restartGame()">もう一度プレイ</button>
     </div>
 
-    <script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script type="module">
         let pokemonData = [];
         let playerName = "";
         let correctCount = 0; // 正解数
@@ -72,19 +73,22 @@
         let currentPokemon; // 現在のポケモンデータ
         let rankings = []; // ランキングデータ
         let hintStep = 0;
+        // import io from "https://cdn.socket.io/4.5.4/socket.io.min.js"
+        const socket = io("http://localhost:3031");
+
         // CSVをJSONに変換する関数
-        function csvToJson(csv) {
-            const lines = csv.split("\n");
-            const headers = lines[0].split(",");
-            const data = lines.slice(1).map(line => {
-                const values = line.split(",");
-                return headers.reduce((obj, header, index) => {
-                    obj[header] = values[index]?.trim();
-                    return obj;
-                }, {});
-            });
-            return data;
-        }
+        // function csvToJson(csv) {
+        //     const lines = csv.split("\n");
+        //     const headers = lines[0].split(",");
+        //     const data = lines.slice(1).map(line => {
+        //         const values = line.split(",");
+        //         return headers.reduce((obj, header, index) => {
+        //             obj[header] = values[index]?.trim();
+        //             return obj;
+        //         }, {});
+        //     });
+        //     return data;
+        // }
 
         // 文字列内の大文字を小文字にひらがなをカタカナに変換する関数
         function hirakata(str) {
@@ -95,49 +99,7 @@
 
         // クイズをセットアップする関数
         function setupQuiz() {
-            const quizHint = document.getElementById("quiz-hint");
-            const quizImage = document.getElementById("quiz-image");
-            const feedback = document.getElementById("feedback");
-            const answerInput = document.getElementById("answer-input");
-
-            // ポケモンの名前をマスクする関数
-            const mask = function (number) {
-                const cha = String(number);
-                const visible = cha[0];
-                return visible + "〇".repeat(cha.length - 1);
-            };
-
-
-            currentPokemon = pokemonData[Math.floor(Math.random() * pokemonData.length)];
-
-            // 初期状態のセットアップ
-            quizHint.textContent = ` ${currentPokemon["技1エネルギー要素数"] === "0" ? '特性持ち' : `エネルギー:${currentPokemon["技1エネルギー要素数"]}`}|技の威力: ${currentPokemon["技1攻撃力"] ||"不明"}| HP: ${currentPokemon["HP"]}`;
-            quizImage.src = currentPokemon["画像URL"];
-            quizImage.classList.add("hidden");
-            feedback.textContent = "";
-            answerInput.value = "";
-            answerInput.focus();
-
-            if (hintInterval) clearInterval(hintInterval);
-
-            let intervals = [2000, 6000, 4000]; // 各ヒントの待ち時間を設定
-            let hintStep = 0;
-
-            const showHint = () => {
-                hintStep++;
-                if (hintStep === 1) {
-                    quizHint.innerHTML += `<br>${currentPokemon["技1エネルギー要素数"] === "0" ? '特性名' :"技名:"} ${currentPokemon["技1名前"]} - ${currentPokemon["技1説明"]}`;
-                } else if (hintStep === 2) {
-                    quizImage.classList.remove("hidden");
-                } else if (hintStep === 3) {
-                    quizHint.innerHTML += `<br>${mask(currentPokemon["名前"])}`;
-                }
-                if (hintStep < intervals.length) {
-                    clearInterval(hintInterval);
-                    hintInterval = setInterval(showHint, intervals[hintStep]);
-                }
-            };
-            hintInterval = setInterval(showHint, intervals[0]);
+            socket.emit('question',2);
 
         }
 
@@ -259,7 +221,7 @@
                     }
                 };
               
-                pokemonData = csvToJson(csvText);
+                // pokemonData = csvToJson(csvText);
                 
                 correctCount = 0;
                 remainingTime = 120;
@@ -279,6 +241,51 @@
         document.getElementById("answer-input").onkeydown = (event) => {
             if (event.key === "Enter") submitAnswer();
         };
+
+        socket.on('hint',(data)=>{
+            // 初期状態のセットアップ
+            const quizHint = document.getElementById("quiz-hint");
+            const quizImage = document.getElementById("quiz-image");
+            const feedback = document.getElementById("feedback");
+            const answerInput = document.getElementById("answer-input");
+
+            const mask = function (number) {
+                const cha = String(number);
+                const visible = cha[0];
+                return visible + "〇".repeat(cha.length - 1);
+            };
+
+            let keys = Object.keys(data);
+            for(let i=0;i<keys.length;i++)
+                quizHint.textContent += data[keys]
+            quizImage.src = data["画像URL"];
+            quizImage.classList.add("hidden");
+            feedback.textContent = "";
+            answerInput.value = "";
+            answerInput.focus();
+
+            if (hintInterval) clearInterval(hintInterval);
+
+            let intervals = [2000, 6000, 4000]; // 各ヒントの待ち時間を設定
+            let hintStep = 0;
+
+            const showHint = () => {
+                hintStep++;
+                if (hintStep === 1) {
+                    quizHint.innerHTML += `<br>${data["技1エネルギー要素数"] === "0" ? '特性名' :"技名:"} ${data["技1名前"]} - ${data["技1説明"]}`;
+                } else if (hintStep === 2) {
+                    quizImage.classList.remove("hidden");
+                } else if (hintStep === 3) {
+                    quizHint.innerHTML += `<br>${mask(data["名前"])}`;
+                }
+                if (hintStep < intervals.length) {
+                    clearInterval(hintInterval);
+                    hintInterval = setInterval(showHint, intervals[hintStep]);
+                }
+            };
+            hintInterval = setInterval(showHint, intervals[0]);
+
+        })
     </script>
 </body>
 </html>
