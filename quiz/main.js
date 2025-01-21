@@ -1,68 +1,3 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ポケモンクイズ</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            text-align: center;
-        }
-        .quiz-container, #ranking-container {
-            margin-top: 20px;
-        }
-        .quiz-image {
-            width: 200px;
-            height: 230px;
-            object-fit: cover;
-        }
-        .hidden {
-            display: none;
-        }
-        #timer, #lives {
-            font-size: 1.5em;
-            margin-top: 10px;
-        }
-        #answer-input {
-            margin-top: 10px;
-        }
-        .ranking-list {
-            text-align: left;
-            margin-top: 20px;
-        }
-    </style>
-</head>
-<body>
-    <h1>ポケモン名前クイズ</h1>
-
-    <!-- プレイヤー名入力 -->
-    <div id="player-setup">
-        <p>プレイヤー名を入力してください:</p>
-        <input type="text" id="player-name" placeholder="プレイヤー名">
-        <button id="start-quiz">ゲーム開始</button>
-    </div>
-
-    <!-- クイズセクション -->
-    <div class="quiz-container hidden" id="quiz-container">
-        <p id="score">ポイント: 0</p>
-        <p id="timer">残り時間: 120秒</p>
-        <p id="lives">ライフ: ♥♥♥♥♥♥♥♥♥♥</p>
-        <p id="quiz-hint">ヒント: 技や説明がここに表示されます</p>
-        <img id="quiz-image" class="quiz-image hidden" alt="ポケモン画像">
-        <input type="text" id="answer-input" placeholder="ポケモンの名前を入力">
-        <p id="feedback"></p>
-    </div>
-
-    <!-- ランキングセクション -->
-    <div class="hidden" id="ranking-container">
-        <h2>ランキング</h2>
-        <ul id="ranking-list" class="ranking-list"></ul>
-        <button onclick="restartGame()">もう一度プレイ</button>
-    </div>
-    
-    <script>
         let pokemonData = [];
         let playerName = "";
         let correctCount = 0; // 正解数
@@ -289,6 +224,3 @@
         document.getElementById("answer-input").onkeydown = (event) => {
             if (event.key === "Enter") submitAnswer();
         };
-    </script>
-</body>
-</html>
