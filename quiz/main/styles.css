@@ -1,19 +1,110 @@
-/* styles.css */
 body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: url('yadon.jpg') no-repeat center center fixed;
+    background-size: cover;
+    color: #333;
     text-align: center;
 }
 
-.quiz-container {
-    margin-top: 20px;
+h1 {
+    margin: 20px 0;
+    font-size: 2.5em;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#player-setup, .quiz-container, #ranking-container {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 500px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"] {
+    width: calc(100% - 40px);
+    padding: 10px;
+    margin: 10px auto;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 1em;
+}
+
+button {
+    background: #4caf50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background: #45a049;
 }
 
 .quiz-image {
-    width: 300px;
-    height: 420px;
+    width: 200px;
+    height: 230px;
+    object-fit: cover;
 }
 
-.answer-input {
-    margin-top: 10px;
+#timer, #lives, #score {
+    font-size: 1.2em;
+    margin: 10px 0;
+    color: #444;
+}
+
+#timer {
+    font-weight: bold;
+    color: #d9534f;
+}
+
+#lives {
+    font-weight: bold;
+    color: #5cb85c;
+}
+
+.ranking-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+    text-align: left;
+}
+
+.ranking-list li {
+    background: rgba(0, 0, 0, 0.05);
+    border-left: 4px solid #4caf50;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+#feedback {
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    input[type="text"], button {
+        font-size: 0.9em;
+    }
+
+    .quiz-container, #ranking-container {
+        padding: 15px;
+    }
 }

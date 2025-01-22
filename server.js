@@ -67,11 +67,6 @@ io.on("connection", (socket) => {
     console.log(data);
     socket.emit("hint",data);
   });
-
-  socket.on("answer",(answer)=>{
-    // if(answer == randomRow[data_set["name"]])
-      socket.emit("answer",randomRow[data_set["name"]]);
-  })
 });
 
 function getRandomElements(row, count) {

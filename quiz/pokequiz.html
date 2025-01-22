@@ -73,22 +73,7 @@
         let currentPokemon; // 現在のポケモンデータ
         let rankings = []; // ランキングデータ
         let hintStep = 0;
-        // import io from "https://cdn.socket.io/4.5.4/socket.io.min.js"
         const socket = io("http://localhost:3031");
-
-        // CSVをJSONに変換する関数
-        // function csvToJson(csv) {
-        //     const lines = csv.split("\n");
-        //     const headers = lines[0].split(",");
-        //     const data = lines.slice(1).map(line => {
-        //         const values = line.split(",");
-        //         return headers.reduce((obj, header, index) => {
-        //             obj[header] = values[index]?.trim();
-        //             return obj;
-        //         }, {});
-        //     });
-        //     return data;
-        // }
 
         // 文字列内の大文字を小文字にひらがなをカタカナに変換する関数
         function hirakata(str) {
@@ -99,7 +84,7 @@
 
         // クイズをセットアップする関数
         function setupQuiz() {
-            socket.emit('question',2);
+            socket.emit('question');
 
         }
 
@@ -126,7 +111,7 @@
                 feedback.textContent = "正解！";
                 feedback.style.color = "green";
                 points = Math.max(3 - hintStep, 1); // ポイント計算：ヒントが少ないほど高得点
-                points = hintStep; // ポイント計算：ヒントが少ないほど高得点
+                // points = hintStep; // ポイント計算：ヒントが少ないほど高得点
                 updateScore(points); // ポイントを更新
             } else {
                 feedback.textContent = `不正解！正解は「${currentPokemon["名前"]}」でした。`;
@@ -243,6 +228,7 @@
         };
 
         socket.on('hint',(data)=>{
+            currentPokemon = data;
             // 初期状態のセットアップ
             const quizHint = document.getElementById("quiz-hint");
             const quizImage = document.getElementById("quiz-image");
@@ -255,10 +241,11 @@
                 return visible + "〇".repeat(cha.length - 1);
             };
 
-            let keys = Object.keys(data);
-            for(let i=0;i<keys.length;i++)
-                quizHint.textContent += data[keys]
-            quizImage.src = data["画像URL"];
+            // let keys = Object.keys(currentPokemon);
+            // for(let i=0;i<keys.length;i++)
+            //     quizHint.textContent += currentPokemon[keys]
+            quizHint.textContent = ` ${currentPokemon["技1エネルギー要素数"] === "0" ? '特性持ち' : `エネルギー:${currentPokemon["技1エネルギー要素数"]}`}|技の威力: ${currentPokemon["技1攻撃力"] ||"不明"}| HP: ${currentPokemon["HP"]}`;
+            quizImage.src = currentPokemon["画像URL"];
             quizImage.classList.add("hidden");
             feedback.textContent = "";
             answerInput.value = "";
@@ -267,16 +254,16 @@
             if (hintInterval) clearInterval(hintInterval);
 
             let intervals = [2000, 6000, 4000]; // 各ヒントの待ち時間を設定
-            let hintStep = 0;
+            hintStep = 0;
 
             const showHint = () => {
                 hintStep++;
                 if (hintStep === 1) {
-                    quizHint.innerHTML += `<br>${data["技1エネルギー要素数"] === "0" ? '特性名' :"技名:"} ${data["技1名前"]} - ${data["技1説明"]}`;
+                    quizHint.innerHTML += `<br>${currentPokemon["技1エネルギー要素数"] === "0" ? '特性名' :"技名:"} ${currentPokemon["技1名前"]} - ${currentPokemon["技1説明"]}`;
                 } else if (hintStep === 2) {
                     quizImage.classList.remove("hidden");
                 } else if (hintStep === 3) {
-                    quizHint.innerHTML += `<br>${mask(data["名前"])}`;
+                    quizHint.innerHTML += `<br>${mask(currentPokemon["名前"])}`;
                 }
                 if (hintStep < intervals.length) {
                     clearInterval(hintInterval);
