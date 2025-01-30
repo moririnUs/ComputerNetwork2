@@ -9,6 +9,7 @@ const csvFilePath = 'pokemon_cards.csv';
 
 // データを格納する配列
 const List = [];
+let rankings = [];
 function getRandom() {
   const minCeiled = Math.ceil(1); // 最初の1行目はスキップ（ヘッダー行）
   const maxFloored = Math.floor(List.length - 1);
@@ -67,6 +68,13 @@ io.on("connection", (socket) => {
     console.log(data);
     socket.emit("hint",data);
   });
+
+  socket.on("ranking",(playerName,score,lives)=>{
+    rankings.push({ name: playerName, score: score, lives });
+    rankings.sort((a, b) => b.score - a.score || b.lives - a.lives);
+
+    socket.emit('rank',rankings);
+  })
 });
 
 function getRandomElements(row, count) {

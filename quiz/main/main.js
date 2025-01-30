@@ -5,7 +5,6 @@ let remainingTime = 120; // 制限時間（秒）
 let lives = 10; // ライフ
 let hintInterval, timerInterval; // ヒントとタイマーのインターバル
 let currentPokemon; // 現在のポケモンデータ
-let rankings = []; // ランキングデータ
 let hintStep = 0;
 // import { io } from 'socket.io-client';
 const socket = io("http://localhost:3031");
@@ -95,19 +94,20 @@ function endQuiz() {
     clearInterval(timerInterval);
     clearInterval(hintInterval);
 
-    const quizContainer = document.getElementById("quiz-container");
-    const rankingContainer = document.getElementById("ranking-container");
-    const rankingList = document.getElementById("ranking-list");
+    socket.emit('ranking',playerName,correctCount,lives);
+    // const quizContainer = document.getElementById("quiz-container");
+    // const rankingContainer = document.getElementById("ranking-container");
+    // // const rankingList = document.getElementById("ranking-list");
 
-    quizContainer.classList.add("hidden");
-    rankingContainer.classList.remove("hidden");
+    // quizContainer.classList.add("hidden");
+    // rankingContainer.classList.remove("hidden");
 
-    rankings.push({ name: playerName, score: correctCount, lives });
-    rankings.sort((a, b) => b.score - a.score || b.lives - a.lives);
+    // rankings.push({ name: playerName, score: correctCount, lives });
+    // rankings.sort((a, b) => b.score - a.score || b.lives - a.lives);
 
-    rankingList.innerHTML = rankings
-        .map((r, index) => `<li>${index + 1}. ${r.name}: ${r.score}問正解 (残りライフ: ${r.lives})</li>`)
-        .join("");
+    // rankingList.innerHTML = rankings
+    //     .map((r, index) => `<li>${index + 1}. ${r.name}: ${r.score}問正解 (残りライフ: ${r.lives})</li>`)
+    //     .join("");
 }
 
 // ゲーム再開始
@@ -207,4 +207,18 @@ socket.on('hint',(data)=>{
     };
     hintInterval = setInterval(showHint, intervals[0]);
 
+})
+
+socket.on('ranking',(rankings)=>{
+    // socket.emit('ranking',playerName,correctCount,lives);
+    const quizContainer = document.getElementById("quiz-container");
+    const rankingContainer = document.getElementById("ranking-container");
+    const rankingList = document.getElementById("ranking-list");
+
+    quizContainer.classList.add("hidden");
+    rankingContainer.classList.remove("hidden");
+
+    rankingList.innerHTML = rankings
+        .map((r, index) => `<li>${index + 1}. ${r.name}: ${r.score}問正解 (残りライフ: ${r.lives})</li>`)
+        .join("");
 })
