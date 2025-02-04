@@ -7,7 +7,7 @@ let hintInterval, timerInterval; // ヒントとタイマーのインターバ�
 let currentPokemon; // 現在のポケモンデータ
 let hintStep = 0;
 // import { io } from 'socket.io-client';
-const socket = io("http://localhost:3031");
+const socket = io("http://172.16.14.158:3031");
 
 // 文字列内の大文字を小文字にひらがなをカタカナに変換する関数
 function hirakata(str) {
@@ -19,7 +19,6 @@ return str.toLowerCase().replace(/[\u3041-\u3096]/g, ch =>
 // クイズをセットアップする関数
 function setupQuiz() {
     socket.emit('question');
-
 }
 
 let score = 0; // ポイント
@@ -84,24 +83,16 @@ function updateTimer() {
     if (remainingTime <= 0) {
         clearInterval(timerInterval);
         clearInterval(hintInterval);
-
+        console.log("time up")
         endQuiz();
     }
 }
 
 // クイズ終了
 function endQuiz() {
-    clearInterval(timerInterval);
-    clearInterval(hintInterval);
-
-    socket.emit('ranking',playerName,correctCount,lives);
-    // const quizContainer = document.getElementById("quiz-container");
-    // const rankingContainer = document.getElementById("ranking-container");
-    // // const rankingList = document.getElementById("ranking-list");
-
-    // quizContainer.classList.add("hidden");
-    // rankingContainer.classList.remove("hidden");
-
+    console.log("emit");
+    socket.emit('ranking',playerName,score,lives);
+    console.log("emitted");
     // rankings.push({ name: playerName, score: correctCount, lives });
     // rankings.sort((a, b) => b.score - a.score || b.lives - a.lives);
 
@@ -144,7 +135,7 @@ document.getElementById("start-quiz").onclick = async () => {
         // pokemonData = csvToJson(csvText);
         
         correctCount = 0;
-        remainingTime = 120;
+        remainingTime = 20;
         lives = 10;
         
         updateLives();
@@ -210,7 +201,12 @@ socket.on('hint',(data)=>{
 })
 
 socket.on('ranking',(rankings)=>{
-    // socket.emit('ranking',playerName,correctCount,lives);
+    const scoreDisplay = document.getElementById("score");
+    console.log("ranking");
+    score = 0;
+    scoreDisplay.textContent = `ポイント: ${score}`;
+    clearInterval(timerInterval);
+    clearInterval(hintInterval);
     const quizContainer = document.getElementById("quiz-container");
     const rankingContainer = document.getElementById("ranking-container");
     const rankingList = document.getElementById("ranking-list");
@@ -219,6 +215,6 @@ socket.on('ranking',(rankings)=>{
     rankingContainer.classList.remove("hidden");
 
     rankingList.innerHTML = rankings
-        .map((r, index) => `<li>${index + 1}. ${r.name}: ${r.score}問正解 (残りライフ: ${r.lives})</li>`)
+        .map((r, index) => `<li>${index + 1}. ${r.name}: ${r.score}point (残りライフ: ${r.lives})</li>`)
         .join("");
 })

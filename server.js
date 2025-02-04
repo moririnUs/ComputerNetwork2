@@ -22,7 +22,6 @@ fs.createReadStream(csvFilePath)
   .on('data', (data) => List.push(data)) // 行ごとのデータを配列に追加
   .on('end', () => {
     console.log('CSV ファイルの内容を読み込みました。');
-    console.log(List[0]);
   })
   .on('error', (err) => {
     console.error('エラーが発生しました:', err.message);
@@ -49,7 +48,10 @@ const data_set = {
 
  // 指定された infoNum の数だけランダムにキーを選択し、そのデータを取得
 //  const selectedData = getRandomElements(randomRow, 2);
-
+// サーバーを起動
+http.listen(3031, () => {
+  console.log("サーバーがポート 3000 で起動しました");
+});
 
 io.on("connection", (socket) => {
   let randomRow = {};
@@ -65,15 +67,16 @@ io.on("connection", (socket) => {
     // const selectedData = getRandomElements(randomRow, infoNum);
 
     // 選択したデータを送信
-    console.log(data);
+    // console.log(data);
     socket.emit("hint",data);
   });
 
-  socket.on("ranking",(playerName,score,lives)=>{
+  socket.on('ranking',(playerName,score,lives)=>{
+    console.log("ranking");
     rankings.push({ name: playerName, score: score, lives });
     rankings.sort((a, b) => b.score - a.score || b.lives - a.lives);
 
-    socket.emit('rank',rankings);
+    socket.emit('ranking',rankings);
   })
 });
 
@@ -136,7 +139,4 @@ function getRandomElements(row, count) {
   // }
   
 
-// サーバーを起動
-http.listen(3031, () => {
-  console.log("サーバーがポート 3000 で起動しました");
-});
+
