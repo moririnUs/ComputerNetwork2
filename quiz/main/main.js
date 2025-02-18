@@ -7,7 +7,7 @@ let hintInterval, timerInterval; // ヒントとタイマーのインターバ�
 let currentPokemon; // 現在のポケモンデータ
 let hintStep = 0;
 // import { io } from 'socket.io-client';
-const socket = io("http://172.16.14.158:3031");
+const socket = io("http://localhost:3031");
 
 // 文字列内の大文字を小文字にひらがなをカタカナに変換する関数
 function hirakata(str) {
