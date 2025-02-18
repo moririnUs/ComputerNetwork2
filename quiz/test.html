@@ -1,0 +1,84 @@
+<input type="text" id="player-name" placeholder="プレイヤー名">
+<button id="start-quiz">ゲーム開始</button>
+</div>
+
+<!-- クイズセクション -->
+<div class="quiz-container hidden" id="quiz-container">
+    <p id="timer">残り時間: 20秒</p>
+    <p id="lives">ライフ: ♥♥♥</p>
+    <p id="quiz-hint">ヒント: 技や説明がここに表示されます</p>
+    <img id="quiz-image" class="quiz-image hidden" alt="ポケモン画像">
+    <input type="text" id="answer-input" placeholder="ポケモンの名前を入力">
+    <button id="submit-answer">回答する</button>
+    <p id="feedback"></p>
+    <p id="previous-feedback"></p> <!-- 前回の正解・不正解と答えを表示する要素 -->
+</div>
+
+<!-- ランキングセクション -->
+<div class="hidden" id="ranking-container">
+    <h2>ランキング</h2>
+    <ul id="ranking-list" class="ranking-list"></ul>
+    <button onclick="restartGame()">もう一度プレイ</button>
+</div>
+
+<script>
+    let pokemonData = [];
+    let playerName = "";
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let previousAnswer = ""; // 前回の答えを保存する変数
+    let previousFeedback = ""; // 前回のフィードバックを保存する変数
+
+    document.getElementById('start-quiz').addEventListener('click', startQuiz);
+    document.getElementById('submit-answer').addEventListener('click', checkAnswer);
+
+    function startQuiz() {
+        playerName = document.getElementById('player-name').value;
+        if (playerName === "") {
+            alert("プレイヤー名を入力してください");
+            return;
+        }
+        document.getElementById('quiz-container').classList.remove('hidden');
+        loadNextQuestion();
+    }
+
+    function loadNextQuestion() {
+        // クイズデータをロードして表示するロジックを追加
+        // ここでは仮のデータを使用
+        document.getElementById('quiz-hint').textContent = "ヒント: これはテストのヒントです";
+        document.getElementById('quiz-image').src = "path/to/image.jpg";
+        document.getElementById('quiz-image').classList.remove('hidden');
+        document.getElementById('answer-input').value = ""; // 入力フィールドをクリア
+        setupQuiz(); // setupQuiz関数を呼び出す
+    }
+
+    function checkAnswer() {
+        const answerInput = document.getElementById('answer-input').value;
+        const feedbackElement = document.getElementById('feedback');
+        if (answerInput.toLowerCase() === "正解のポケモン名") {
+            feedbackElement.textContent = "正解！";
+            feedbackElement.style.color = "green";
+            score++;
+            previousFeedback = "正解！";
+        } else {
+            feedbackElement.textContent = "不正解...";
+            feedbackElement.style.color = "red";
+            previousFeedback = "不正解...";
+        }
+        previousAnswer = answerInput; // 前回の答えを保存
+        setTimeout(loadNextQuestion, 2000); // 2秒後に次の質問をロード
+    }
+
+    function setupQuiz() {
+        const previousFeedbackElement = document.getElementById('previous-feedback');
+        if (previousAnswer !== "") {
+            previousFeedbackElement.textContent = `前回の答え: ${previousAnswer} (${previousFeedback})`;
+        } else {
+            previousFeedbackElement.textContent = "";
+        }
+    }
+
+    function restartGame() {
+        // ゲームを再スタートするロジックを追加
+    }
+</script>
